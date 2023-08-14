@@ -76,15 +76,55 @@ func main() {
 		for _, path := range validpaths {
 			fmt.Println(path)
 		}
-		// fmt.Println("--------------------------------------------------------------------------------------------")
-		// newpath := [][]string{}
-		// for _, path := range validpaths {
-		// 	if ChoicePath(newpath, path) {
-		// 		newpath = append(newpath, path)
-		// 	}
-		// }
-		// for _, path := range newpath {
-		// 	fmt.Println(path)
-		// }
+		fmt.Println("--------------------------------------------------------------------------------------------")
+		newpath := [][]string{}
+		for _, path := range validpaths {
+			if !ChoicePath(newpath, path) {
+				newpath = append(newpath, path)
+			}
+		}
+		for _, path := range newpath {
+			fmt.Println(path)
+		}
 	}
+}
+
+func ChoicePath(allpaths [][]string, onepath []string) bool {
+
+	for _, path := range allpaths {
+		if len(path) < len(onepath) {
+			if VerifyExistPath(path, onepath) {
+				return true
+			}
+		} else {
+			if VerifyExistPath(path, onepath) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func VerifyExistPath(path1, path2 []string) bool {
+
+	if len(path1) < len(path2) {
+		for i := 1; i < len(path1); i++ {
+			// for i = 1; i < len(path1); i++ {
+			if path1[i] == path2[i] {
+				return true
+			}
+			// }
+		}
+	} else {
+		for i := 1; i < len(path2); i++ {
+			// for i = 1; i < len(path2); i++ {
+			if path2[i] == path1[i] {
+				return true
+			}
+			// }
+		}
+	}
+
+	return false
 }
