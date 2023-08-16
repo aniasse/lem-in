@@ -71,16 +71,6 @@ func Contain(str string, r rune) bool {
 	return false
 }
 
-func NoRepeat(tab []string, str string) bool {
-
-	for _, v := range tab {
-		if v == str {
-			return true
-		}
-	}
-	return false
-}
-
 func Verify(array []string, str string) bool {
 
 	for _, v := range array {

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func GetRoomLink(array *[]string) [][]string {
+func GetRoomLink(array *[]string) ([][]string, int, map[int][]string) {
 
 	var (
 		start         string
@@ -21,11 +21,14 @@ func GetRoomLink(array *[]string) [][]string {
 		arrayLinkRoom []string
 		graph         = make(Graph)
 		paths         [][]string
+		numAnts       int
+		errAnts       error
+		Maquette      = make(map[int][]string)
 	)
 	if len(*array) != 0 {
 		ants := (*array)[0]
-		_, err := strconv.Atoi(ants)
-		if err != nil {
+		numAnts, errAnts = strconv.Atoi(ants)
+		if errAnts != nil {
 			log.Fatal("ERROR: Number of ants is invalid")
 		}
 	}
@@ -80,10 +83,10 @@ func GetRoomLink(array *[]string) [][]string {
 		if (split[0] == split[1]) || (strings.ToUpper(string(split[0][0])) == "L" || strings.ToUpper(string(split[0][0])) == "#" || strings.ToUpper(string(split[1][0])) == "L" || strings.ToUpper(string(split[1][0])) == "#") {
 			log.Fatal("ERROR: Invalid data format")
 		}
-		if !NoRepeat(arrayLinkRoom, split[0]) {
+		if !Verify(arrayLinkRoom, split[0]) {
 			arrayLinkRoom = append(arrayLinkRoom, split[0])
 		}
-		if !NoRepeat(arrayLinkRoom, split[1]) {
+		if !Verify(arrayLinkRoom, split[1]) {
 			arrayLinkRoom = append(arrayLinkRoom, split[1])
 		}
 		graph[split[0]] = append(graph[split[0]], split[1])
@@ -113,6 +116,37 @@ func GetRoomLink(array *[]string) [][]string {
 		}
 	}
 
-	fmt.Println("--------------------------------------------------")
-	return allValidpaths
+	fmt.Println("Les chemins possibles")
+	for _, v := range paths {
+		fmt.Println(v)
+	}
+	fmt.Println("--------------------------------------------------------------------------------------------")
+	//Les chemins obtenus avant l'ordonnement des chemins en fonction de leur taille
+	validPaths := [][]string{}
+	for _, path := range paths {
+		if !Check(validPaths, path) {
+			validPaths = append(validPaths, path)
+		}
+	}
+	//Les chemins obtenus apres ordonnement de l'ensemble des chemins en fonction de leur taille
+	sortpaths := Sortarray(paths)
+	sortvalidPaths := [][]string{}
+	for _, path := range sortpaths {
+		if !Check(sortvalidPaths, path) {
+			sortvalidPaths = append(sortvalidPaths, path)
+		}
+	}
+	//Choix definitif des chemins
+	lastPath := [][]string{}
+	if len(validPaths) >= len(sortvalidPaths) {
+		lastPath = validPaths
+	} else {
+		lastPath = sortvalidPaths
+	}
+
+	for ind, path := range lastPath {
+		Maquette[ind+1] = path[2:]
+	}
+
+	return allValidpaths, numAnts, Maquette
 }

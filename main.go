@@ -12,41 +12,15 @@ func main() {
 
 		arg := os.Args[1]
 		data_file := pkg.GetDatafile("./data/" + arg)
-		paths := pkg.GetRoomLink(&data_file)
-
-		fmt.Println("Les chemins possibles")
-		for _, v := range paths {
-			fmt.Println(v)
-		}
-		fmt.Println("--------------------------------------------------------------------------------------------")
-		//Les chemins obtenus avant l'ordonnement des chemins en fonction de leur taille
-		validPaths := [][]string{}
-		for _, path := range paths {
-			if !pkg.Check(validPaths, path) {
-				validPaths = append(validPaths, path)
-			}
-		}
-		//Les chemins obtenus apres ordonnement de l'ensemble des chemins en fonction de leur taille
-		sortpaths := pkg.Sortarray(paths)
-		sortvalidPaths := [][]string{}
-		for _, path := range sortpaths {
-			if !pkg.Check(sortvalidPaths, path) {
-				sortvalidPaths = append(sortvalidPaths, path)
-			}
-		}
-		//Choix definitif des chemins
-		lastPath := [][]string{}
-		if len(validPaths) >= len(sortvalidPaths) {
-			lastPath = validPaths
-		} else {
-			lastPath = sortvalidPaths
-		}
+		paths, _, maquette := pkg.GetRoomLink(&data_file)
 
 		fmt.Println("Le(s) chemin(s) valides")
-		for _, path := range lastPath {
+		for _, path := range paths {
 			fmt.Println(path)
 		}
 		fmt.Println("--------------------------------------------------------------------------------------------")
-
+		for ind, path := range maquette {
+			fmt.Println(ind, path)
+		}
 	}
 }
