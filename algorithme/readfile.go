@@ -20,8 +20,9 @@ func GetDatafile(str string) []string {
 	scan := bufio.NewScanner(file)
 
 	for scan.Scan() {
-		if strings.Trim(scan.Text(), " ") != "" {
-			array = append(array, scan.Text())
+		trim := strings.Trim(scan.Text(), " ")
+		if trim != "" {
+			array = append(array, trim)
 		}
 	}
 	return array

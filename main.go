@@ -2,129 +2,51 @@ package main
 
 import (
 	"fmt"
-	"lem-in/pkg"
+	pkg "lem-in/algorithme"
 	"os"
-	"strings"
 )
-
-type Graph map[string][]string
-
-func DFS(graph Graph, current string, target string, visited map[string]bool, path []string, paths *[][]string) {
-	if current == target {
-		newPath := make([]string, len(path))
-		copy(newPath, path)
-		newPath = append(newPath, target)
-		*paths = append(*paths, newPath)
-		return
-	}
-
-	visited[current] = true
-	path = append(path, current, "->")
-
-	for _, neighbor := range graph[current] {
-		if !visited[neighbor] { //Au cas ou la chambre n'est pas visite
-			DFS(graph, neighbor, target, visited, path, paths)
-		}
-	}
-
-	visited[current] = false
-	// path = path[:len(path)-1]
-}
-
-func FindPaths(graph Graph, start string, target string) [][]string {
-	visited := make(map[string]bool)
-	paths := [][]string{}
-	path := []string{}
-	DFS(graph, start, target, visited, path, &paths)
-	return paths
-}
 
 func main() {
 
 	if len(os.Args) == 2 && os.Args[1] != "" {
 
 		arg := os.Args[1]
+		data_file := pkg.GetDatafile("./data/" + arg)
+		paths := pkg.GetRoomLink(&data_file)
 
-		graph := make(Graph)
-
-		data_file := pkg.GetDatafile(arg)
-		start, end, index := pkg.GetRoomLink(&data_file)
-
-		for i := index; i < len(data_file); i++ {
-
-			if data_file[i][0] == '#' {
-
-			} else {
-				split := strings.Split(data_file[i], "-")
-				if len(split) != 2 {
-					fmt.Printf("Ligne %d invalide\n", i+1)
-					continue
-				}
-				graph[split[0]] = append(graph[split[0]], split[1])
-				graph[split[1]] = append(graph[split[1]], split[0])
-			}
+		fmt.Println("Les chemins possibles")
+		for _, v := range paths {
+			fmt.Println(v)
 		}
-
-		paths := FindPaths(graph, start, end)
-		validpaths := [][]string{}
-		fmt.Printf("Chemin à partir du noeud %s au noeud %s:\n", start, end)
+		fmt.Println("--------------------------------------------------------------------------------------------")
+		//Les chemins obtenus avant l'ordonnement des chemins en fonction de leur taille
+		validPaths := [][]string{}
 		for _, path := range paths {
-			if len(path) != 0 && path[0] == start && path[len(path)-1] == end {
-				validpaths = append(validpaths, path)
+			if !pkg.Check(validPaths, path) {
+				validPaths = append(validPaths, path)
 			}
 		}
-		for _, path := range validpaths {
+		//Les chemins obtenus apres ordonnement de l'ensemble des chemins en fonction de leur taille
+		sortpaths := pkg.Sortarray(paths)
+		sortvalidPaths := [][]string{}
+		for _, path := range sortpaths {
+			if !pkg.Check(sortvalidPaths, path) {
+				sortvalidPaths = append(sortvalidPaths, path)
+			}
+		}
+		//Choix definitif des chemins
+		lastPath := [][]string{}
+		if len(validPaths) >= len(sortvalidPaths) {
+			lastPath = validPaths
+		} else {
+			lastPath = sortvalidPaths
+		}
+
+		fmt.Println("Le(s) chemin(s) valides")
+		for _, path := range lastPath {
 			fmt.Println(path)
 		}
 		fmt.Println("--------------------------------------------------------------------------------------------")
-		newpath := [][]string{}
-		for _, path := range validpaths {
-			if !ChoicePath(newpath, path) {
-				newpath = append(newpath, path)
-			}
-		}
-		for _, path := range newpath {
-			fmt.Println(path)
-		}
+
 	}
-}
-
-func ChoicePath(allpaths [][]string, onepath []string) bool {
-
-	for _, path := range allpaths {
-		if len(path) < len(onepath) {
-			if VerifyExistPath(path, onepath) {
-				return true
-			}
-		} else {
-			if VerifyExistPath(path, onepath) {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-func VerifyExistPath(path1, path2 []string) bool {
-
-	if len(path1) < len(path2) {
-		for i := 1; i < len(path1); i++ {
-			// for i = 1; i < len(path1); i++ {
-			if path1[i] == path2[i] {
-				return true
-			}
-			// }
-		}
-	} else {
-		for i := 1; i < len(path2); i++ {
-			// for i = 1; i < len(path2); i++ {
-			if path2[i] == path1[i] {
-				return true
-			}
-			// }
-		}
-	}
-
-	return false
 }
