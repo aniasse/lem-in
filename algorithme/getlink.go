@@ -42,6 +42,9 @@ func GetRoomLink(array *[]string) ([][]string, int, map[int][]string) {
 		} else if Contain(v, ' ') { //Pour les lignes contenant les coordonnees des rooms
 			split := strings.Split(v, " ")
 			if len(split) == 3 {
+				if strings.ToUpper(string(split[0][0])) == "L" || strings.ToUpper(string(split[0][0])) == "#" {
+					log.Fatalf("ERROR: The %v room is invalid", split[0])
+				}
 				arrayRoom = append(arrayRoom, split[0])
 				_, erx := strconv.Atoi(split[1])
 				_, ery := strconv.Atoi(split[2])
@@ -80,7 +83,7 @@ func GetRoomLink(array *[]string) ([][]string, int, map[int][]string) {
 			log.Fatalf("ERROR: Invalid data format")
 			continue
 		}
-		if (split[0] == split[1]) || (strings.ToUpper(string(split[0][0])) == "L" || strings.ToUpper(string(split[0][0])) == "#" || strings.ToUpper(string(split[1][0])) == "L" || strings.ToUpper(string(split[1][0])) == "#") {
+		if split[0] == split[1] {
 			log.Fatal("ERROR: Invalid data format")
 		}
 		if !Verify(arrayLinkRoom, split[0]) {
