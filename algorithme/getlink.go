@@ -42,7 +42,7 @@ func GetRoomLink(array *[]string) ([][]string, int, map[int][]string) {
 		} else if Contain(v, ' ') { //Pour les lignes contenant les coordonnees des rooms
 			split := strings.Split(v, " ")
 			if len(split) == 3 {
-				if strings.ToUpper(string(split[0][0])) == "L" || strings.ToUpper(string(split[0][0])) == "#" {
+				if split[0][0] == 'L' || split[0][0] == '#' {
 					log.Fatalf("ERROR: The %v room is invalid", split[0])
 				}
 				arrayRoom = append(arrayRoom, split[0])
