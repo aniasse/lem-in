@@ -13,7 +13,7 @@ func DFS(graph Graph, current string, target string, visited map[string]bool, pa
 	}
 
 	visited[current] = true
-	path = append(path, current, "->")
+	path = append(path, current)
 
 	for _, neighbor := range graph[current] {
 		if !visited[neighbor] { //Au cas ou la chambre n'est pas visite
@@ -38,7 +38,7 @@ func Check(array [][]string, tab1 []string) bool {
 	for _, tab := range array {
 		for i := 1; i < len(tab)-1; i++ {
 			for j := 1; j < len(tab1)-1; j++ {
-				if tab[i] == tab1[j] && tab[i] != "->" && tab1[j] != "->" {
+				if tab[i] == tab1[j] {
 					return true
 				}
 			}
