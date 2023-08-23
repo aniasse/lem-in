@@ -12,16 +12,12 @@ func main() {
 
 		arg := os.Args[1]
 		data_file := pkg.GetDatafile(arg)
-		paths, ants, maquette := pkg.GetRoomLink(&data_file)
+		paths, ants, end := pkg.GetRoomLink(&data_file)
 
-		fmt.Println("Le(s) chemin(s) valides")
-		for _, path := range paths {
-			fmt.Println(path)
+		for _, data := range data_file {
+			fmt.Println(data)
 		}
-		fmt.Println("--------------------------------------------------------------------------------------------")
-		// for ind, path := range maquette {
-		// 	fmt.Println(ind, path)
-		// }
-		pkg.MoveAnts(maquette, ants)
+		fmt.Println()
+		pkg.MoveAnts(paths, ants, end)
 	}
 }

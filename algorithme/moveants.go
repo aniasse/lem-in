@@ -3,63 +3,95 @@ package pkg
 import "fmt"
 
 type Ant struct {
-	id int
+	ID       int
+	Path     []string
+	RoomID   int
+	Previous string
+	Arrived  bool
 }
 
-type Path struct {
-	Id       map[int][]string
-	Rooms    int
-	path     []string
-	ants     int
-	Assigned []Ant
+type Distribution struct {
+	ants   []int
+	Path   []string
+	Length int
 }
 
-func AssignPath(ant *Ant, path []Path) {
+func Distribute(ant int, paths [][]string) []Distribution {
+	var distributions []Distribution
+	for i := 0; i < len(paths); i++ {
+		dist := Distribution{Path: paths[i], Length: len(paths[i])}
+		distributions = append(distributions, dist)
+	}
+	j := 0
 
-	minPath := &path[0]
+	distributions[0].ants = append(distributions[0].ants, 1)
+	distributions[0].Length++
+	for i := 2; i <= ant; i++ {
 
-	for i := 1; i < len(path); i++ {
-		if minPath.Rooms+minPath.ants > path[i].Rooms+path[i].ants {
-			minPath = &path[i]
+		if j+1 < len(distributions) && distributions[j+1].Length <= distributions[j].Length {
+			distributions[j+1].ants = append(distributions[j+1].ants, i)
+			distributions[j+1].Length++
+			j++
+		} else {
+			j = 0
+			distributions[j].ants = append(distributions[j].ants, i)
+			distributions[j].Length++
 		}
 	}
 
-	minPath.Assigned = append(minPath.Assigned, *ant)
-	minPath.ants++
+	return distributions
 }
 
-func MoveAnts(paths map[int][]string, numAnt int) {
+func MoveAnts(paths [][]string, numAnt int, end string) {
 
-	var (
-		Mypaths []Path
-		stock   = make(map[int][]string)
-	)
-	for idx, path := range paths {
+	distributions := Distribute(numAnt, paths)
 
-		stock[idx] = path
-		stockPath := Path{
-			Id:    stock,
-			Rooms: len(path),
+	ants := []Ant{}
+	for _, dist := range distributions {
+		for _, antID := range dist.ants {
+			ant := Ant{ID: antID, Path: dist.Path[1:], RoomID: 0, Previous: "", Arrived: false}
+			ants = append(ants, ant)
 		}
-
-		Mypaths = append(Mypaths, stockPath)
 	}
 
-	Ants := make([]Ant, numAnt)
+	exit := false
+	taken := make(map[string]bool)
+	var room string
+	for !exit {
+		allArrived := true
+		for i, ant := range ants {
+			if ant.Arrived {
+				continue
+			}
+			if ant.RoomID < len(ant.Path) {
+				room = ant.Path[ant.RoomID]
+			}
+			if taken[room] {
+				continue
+			}
 
-	for i := 0; i < numAnt; i++ {
-		Ants[i] = Ant{id: i + 1}
-	}
-	for _, ant := range Ants {
-		AssignPath(&ant, Mypaths)
-	}
+			fmt.Print("L", ant.ID, "-", room, " ")
+			ants[i].RoomID++
 
-	for idx, path := range Mypaths {
-		fmt.Printf("Path%d %v:", idx+1, path.Id[idx+1])
-		for i := 0; i < len(path.Assigned); i++ {
-			fmt.Printf(" L%d", path.Assigned[i].id)
+			if ant.RoomID >= len(ant.Path) {
+				ant.Arrived = true
+			} else {
+				taken[ant.Previous] = false
+				if room != end {
+					taken[room] = true
+					ants[i].Previous = room
+				} else {
+					ants[i].Arrived = true
+				}
+			}
+			if !ant.Arrived {
+				allArrived = false
+			}
 		}
-		fmt.Println()
+		if !allArrived {
+			fmt.Println()
+		} else {
+			exit = true
+		}
 	}
-
 }

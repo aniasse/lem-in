@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func GetRoomLink(array *[]string) ([][]string, int, map[int][]string) {
+func GetRoomLink(array *[]string) ([][]string, int, string) {
 
 	var (
 		start         string
@@ -24,7 +24,6 @@ func GetRoomLink(array *[]string) ([][]string, int, map[int][]string) {
 		paths         [][]string
 		numAnts       int
 		errAnts       error
-		Maquette      = make(map[int][]string)
 	)
 	if len(*array) != 0 {
 		ants := (*array)[0]
@@ -139,33 +138,37 @@ func GetRoomLink(array *[]string) ([][]string, int, map[int][]string) {
 			allValidpaths = append(allValidpaths, path)
 		}
 	}
+	allValidpaths = Sortarray(allValidpaths)
 
 	//Les chemins obtenus avant l'ordonnement des chemins en fonction de leur taille
+
+	triplePaths := [][][]string{}
 	validPaths := [][]string{}
-	for _, path := range paths {
-		if !Check(validPaths, path) {
-			validPaths = append(validPaths, path)
+	for i := 0; i < len(allValidpaths); i++ {
+		tab := ChoicePath(allValidpaths, i)
+		for _, path := range tab {
+			if !Check(validPaths, path) {
+				validPaths = append(validPaths, path)
+			}
 		}
+		triplePaths = append(triplePaths, validPaths)
+		validPaths = [][]string{}
 	}
-	//Les chemins obtenus apres ordonnement de l'ensemble des chemins en fonction de leur taille
-	sortpaths := Sortarray(paths)
-	sortvalidPaths := [][]string{}
-	for _, path := range sortpaths {
-		if !Check(sortvalidPaths, path) {
-			sortvalidPaths = append(sortvalidPaths, path)
+	for i := 0; i < len(triplePaths); i++ {
+		for j := i + 1; j < len(triplePaths); j++ {
+			if len(triplePaths[i]) < len(triplePaths[j]) {
+				triplePaths[i], triplePaths[j] = triplePaths[j], triplePaths[i]
+			}
 		}
-	}
-	//Choix definitif des chemins
-	lastPath := [][]string{}
-	if len(validPaths) >= len(sortvalidPaths) {
-		lastPath = validPaths
-	} else {
-		lastPath = sortvalidPaths
-	}
-	lastPath = Sortarray(lastPath)
-	for ind, path := range lastPath {
-		Maquette[ind+1] = path[1:]
 	}
 
-	return lastPath, numAnts, Maquette
+	//Choix definitif des chemins
+	lastPath := [][]string{}
+	if len(triplePaths) != 0 {
+		lastPath = triplePaths[0]
+	}
+
+	lastPath = Sortarray(lastPath)
+
+	return lastPath, numAnts, end
 }
