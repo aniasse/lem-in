@@ -55,7 +55,7 @@ func MoveAnts(paths [][]string, numAnt int, end string) {
 	}
 
 	exit := false
-	taken := make(map[string]bool)
+	occupedRoom := make(map[string]bool)
 	var room string
 	for !exit {
 		allArrived := true
@@ -66,7 +66,7 @@ func MoveAnts(paths [][]string, numAnt int, end string) {
 			if ant.RoomID < len(ant.Path) {
 				room = ant.Path[ant.RoomID]
 			}
-			if taken[room] {
+			if occupedRoom[room] {
 				continue
 			}
 
@@ -76,9 +76,9 @@ func MoveAnts(paths [][]string, numAnt int, end string) {
 			if ant.RoomID >= len(ant.Path) {
 				ant.Arrived = true
 			} else {
-				taken[ant.Previous] = false
+				occupedRoom[ant.Previous] = false
 				if room != end {
-					taken[room] = true
+					occupedRoom[room] = true
 					ants[i].Previous = room
 				} else {
 					ants[i].Arrived = true
