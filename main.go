@@ -12,12 +12,13 @@ func main() {
 
 		arg := os.Args[1]
 		data_file := pkg.GetDatafile(arg)
-		paths, ants, end := pkg.GetRoomLink(&data_file)
+		paths, ants := pkg.GetRoomLink(&data_file)
 
 		for _, data := range data_file {
 			fmt.Println(data)
 		}
 		fmt.Println()
-		pkg.MoveAnts(paths, ants, end)
+
+		pkg.MoveAnts(paths, ants)
 	}
 }

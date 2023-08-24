@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func GetRoomLink(array *[]string) ([][]string, int, string) {
+func GetRoomLink(array *[]string) ([][]string, int) {
 
 	var (
 		start         string
@@ -170,5 +170,5 @@ func GetRoomLink(array *[]string) ([][]string, int, string) {
 
 	lastPath = Sortarray(lastPath)
 
-	return lastPath, numAnts, end
+	return lastPath, numAnts
 }

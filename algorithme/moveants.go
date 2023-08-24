@@ -3,20 +3,23 @@ package pkg
 import "fmt"
 
 type Ant struct {
-	ID       int
-	Path     []string
-	RoomID   int
-	Previous string
-	Arrived  bool
+	ID        int
+	Path      []string
+	RoomID    int
+	Arrived   bool
+	QuitStart bool
+	pathIdx   int
 }
 
 type Distribution struct {
 	ants   []int
 	Path   []string
+	LenAnt int
 	Length int
 }
 
 func Distribute(ant int, paths [][]string) []Distribution {
+
 	var distributions []Distribution
 	for i := 0; i < len(paths); i++ {
 		dist := Distribution{Path: paths[i], Length: len(paths[i])}
@@ -38,60 +41,56 @@ func Distribute(ant int, paths [][]string) []Distribution {
 			distributions[j].Length++
 		}
 	}
-
+	for i, dist := range distributions {
+		distributions[i].LenAnt = len(dist.ants)
+	}
 	return distributions
 }
 
-func MoveAnts(paths [][]string, numAnt int, end string) {
+func MoveAnts(paths [][]string, numAnt int) {
 
 	distributions := Distribute(numAnt, paths)
 
 	ants := []Ant{}
-	for _, dist := range distributions {
+	for i, dist := range distributions {
 		for _, antID := range dist.ants {
-			ant := Ant{ID: antID, Path: dist.Path[1:], RoomID: 0, Previous: "", Arrived: false}
+			ant := Ant{ID: antID, Path: dist.Path[1:], RoomID: 0, Arrived: false, QuitStart: false, pathIdx: i}
 			ants = append(ants, ant)
 		}
 	}
 
-	exit := false
-	occupedRoom := make(map[string]bool)
-	var room string
-	for !exit {
-		allArrived := true
+	numAntarrived := 0
+	numAntleft := 0
+	for numAntarrived < numAnt {
 		for i, ant := range ants {
-			if ant.Arrived {
-				continue
-			}
-			if ant.RoomID < len(ant.Path) {
-				room = ant.Path[ant.RoomID]
-			}
-			if occupedRoom[room] {
-				continue
-			}
-
-			fmt.Print("L", ant.ID, "-", room, " ")
-			ants[i].RoomID++
-
-			if ant.RoomID >= len(ant.Path) {
-				ant.Arrived = true
-			} else {
-				occupedRoom[ant.Previous] = false
-				if room != end {
-					occupedRoom[room] = true
-					ants[i].Previous = room
-				} else {
+			if ant.QuitStart && !ant.Arrived {
+				if ant.RoomID == len(ant.Path[1:]) {
 					ants[i].Arrived = true
+					numAntarrived++
+				} else {
+					ants[i].RoomID++
+					fmt.Printf("L%d-%v ", ant.ID, distributions[ant.pathIdx].Path[1:][ants[i].RoomID])
 				}
 			}
-			if !ant.Arrived {
-				allArrived = false
+		}
+
+		if numAntleft < numAnt {
+			for j, dist := range distributions {
+				if dist.LenAnt > 0 {
+					for i, ant := range ants {
+						if !ant.QuitStart && ant.pathIdx == j {
+							fmt.Printf("L%d-%s ", ant.ID, dist.Path[1:][ant.RoomID])
+							ants[i].QuitStart = true
+							distributions[j].LenAnt--
+							numAntleft++
+							break
+						}
+					}
+				}
 			}
 		}
-		if !allArrived {
+		if numAntarrived != numAnt {
 			fmt.Println()
-		} else {
-			exit = true
 		}
 	}
 }
