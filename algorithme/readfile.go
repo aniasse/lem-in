@@ -7,9 +7,12 @@ import (
 	"strings"
 )
 
-func GetDatafile(str string) []string {
+func GetDatafile(str string) ([]string, []string) {
 
-	var array []string
+	var (
+		array []string
+		contentFile []string
+	)
 	file, err := os.Open(str)
 
 	if err != nil {
@@ -24,6 +27,11 @@ func GetDatafile(str string) []string {
 		if trim != "" {
 			array = append(array, trim)
 		}
+		if Contain(trim, '#') && (trim=="##start" || trim == "##end") && trim!=""{
+			contentFile = append(contentFile, trim)
+		} else if !Contain(trim, '#')&& trim!="" {
+			contentFile = append(contentFile, trim)
+		}
 	}
-	return array
+	return array, contentFile
 }

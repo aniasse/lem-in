@@ -24,6 +24,8 @@ func GetRoomLink(array *[]string) ([][]string, int) {
 		paths         [][]string
 		numAnts       int
 		errAnts       error
+		numStart      int
+		numEnd        int
 	)
 	if len(*array) != 0 {
 		ants := (*array)[0]
@@ -37,14 +39,17 @@ func GetRoomLink(array *[]string) ([][]string, int) {
 		if strings.HasPrefix(v, "##start") && ind < len(*array)-1 {
 			checkstart = ind
 			start = (*array)[ind+1]
+			numStart++
 		} else if strings.HasPrefix(v, "##end") && ind < len(*array)-1 {
 			checkend = ind
 			end = (*array)[ind+1]
+			numEnd++
 		} else if Contain(v, ' ') { //Pour les lignes contenant les coordonnees des rooms
 			split := strings.Split(v, " ")
 			if len(split) == 3 {
 				arrayRoom = append(arrayRoom, split[0])
-				if split[0][0] == 'L' || split[0][0] == '#' {
+				if (split[0][0] == 'L' || split[0][0] == '#') && split[0]!="##end"{
+					//fmt.Println("ok")
 					fmt.Printf("ERROR: The %v room is invalid\n", split[0])
 					os.Exit(0)
 				}
@@ -67,8 +72,17 @@ func GetRoomLink(array *[]string) ([][]string, int) {
 		}
 
 	}
+
 	if start_count == len(*array) { // Au cas ou il n'y a pas de ligne ##start
 		fmt.Println("ERROR: Invalid data format, no start room found")
+		os.Exit(0)
+	}
+	if numStart != 1 {
+		fmt.Println("ERROR: Invalid data format")
+		os.Exit(0)
+	}
+	if numEnd != 1 {
+		fmt.Println("ERROR: Invalid data format")
 		os.Exit(0)
 	}
 	if end_count == len(*array) {
@@ -119,12 +133,15 @@ func GetRoomLink(array *[]string) ([][]string, int) {
 	end_array := strings.Split(end, " ")
 	start = start_array[0]
 	end = end_array[0]
-
+	if start == end {
+		fmt.Println("ERROR: Invalid data format")
+		os.Exit(0)
+	}
 	//Verifier s'il y a un room inconnu (non declaré)
 	arrayLinkRoom = append(arrayLinkRoom, start, end)
 	for _, room := range arrayLinkRoom {
-		if !Verify(arrayRoom, room) {
-			fmt.Printf("ERROR: The %s  room is invalid\n", room)
+		if !Verify(arrayRoom, room) && room != "##end"{
+			fmt.Printf("ERROR: The %s room is invalid\n", room)
 			os.Exit(0)
 		}
 	}
