@@ -147,7 +147,7 @@ func GetRoomLink(array *[]string) ([][]string, int) {
 	arrayLinkRoom = append(arrayLinkRoom, start, end)
 	for _, room := range arrayLinkRoom {
 		if !Verify(arrayRoom, room) && room != "##end" {
-			fmt.Printf("ERROR: The %s room is invalid\n", room)
+			fmt.Printf("ERROR: The %s room isn't exist\n", room)
 			os.Exit(0)
 		}
 	}
